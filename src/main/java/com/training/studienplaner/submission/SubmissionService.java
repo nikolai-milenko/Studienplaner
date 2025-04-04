@@ -1,5 +1,7 @@
 package com.training.studienplaner.submission;
 
+import com.training.studienplaner.assignment.Assignment;
+import com.training.studienplaner.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SubmissionService {
     private final SubmissionRepository submissionRepository;
+
+    public void generateSubmissionsForAssignment(Assignment assignment) {
+        List<User> students = assignment.getCourse().getStudents().stream()
+                .filter(user -> user.getRole() == User.Role.STUDENT)
+                .toList();
+
+        List<Submission> submissions = students.stream()
+                .map(student -> Submission.builder()
+                        .assignment(assignment)
+                        .student(student)
+                        .status(Submission.Status.NOT_SUBMITTED)
+                        .build())
+                .toList();
+
+        submissionRepository.saveAll(submissions);
+    }
 
     public Submission createSubmission(Submission submission) {
         return submissionRepository.save(submission);

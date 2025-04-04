@@ -1,5 +1,6 @@
 package com.training.studienplaner.assignment;
 
+import com.training.studienplaner.submission.SubmissionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,10 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssignmentService {
     private final AssignmentRepository assignmentRepository;
-
-    public Assignment createAssignment(Assignment assignment) {
-        return assignmentRepository.save(assignment);
-    }
+    private final SubmissionService submissionService;
 
     public List<Assignment> getAllAssignments() {
         return assignmentRepository.findAll();
@@ -27,5 +25,11 @@ public class AssignmentService {
     public void deleteAssignmentById(Long id) {
         Assignment assignment = getAssignmentById(id);
         assignmentRepository.delete(assignment);
+    }
+
+    public Assignment createAssignment(Assignment assignment) {
+        Assignment saved = assignmentRepository.save(assignment);
+        submissionService.generateSubmissionsForAssignment(saved);
+        return saved;
     }
 }
