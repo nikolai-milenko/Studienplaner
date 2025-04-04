@@ -53,8 +53,7 @@ public class UserService{
 
     public void enrollUserToCourse(Long userId, Long courseId){
         User user = getById(userId);
-        Course course = courseService.getById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        Course course = courseService.getCourseById(courseId);
         user.getCoursesList().add(course);
         userRepository.save(user);
     }
