@@ -1,8 +1,10 @@
 package com.training.studienplaner.course;
 
+import com.training.studienplaner.assignment.Assignment;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.training.studienplaner.user.User;
 
 import java.util.List;
 
@@ -28,4 +30,15 @@ public class CourseService {
         Course course = getCourseById(id);
         courseRepository.delete(course);
     }
+
+    public List<Assignment> getAssignmentsByCourseId(Long courseId) {
+        Course course = getCourseById(courseId);
+        return course.getAssignments();
+    }
+
+    public List<User> getStudentsByCourseId(Long courseId) {
+        Course course = getCourseById(courseId);
+        return course.getStudents();
+    }
+
 }

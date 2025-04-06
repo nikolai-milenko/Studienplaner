@@ -29,8 +29,8 @@ public class SubmissionService {
         submissionRepository.saveAll(submissions);
     }
 
-    public Submission createSubmission(Submission submission) {
-        return submissionRepository.save(submission);
+    public void createSubmission(Submission submission) {
+        submissionRepository.save(submission);
     }
 
     public List<Submission> getAllSubmissions() {
@@ -46,4 +46,29 @@ public class SubmissionService {
         Submission submission = getSubmissionById(id);
         submissionRepository.delete(submission);
     }
+
+    public List<Submission> getSubmissionsByAssignmentId(Long assignmentId) {
+        return submissionRepository.findByAssignmentAssignmentId(assignmentId);
+    }
+
+    public List<Submission> getSubmissionsByUserId(Long userId) {
+        return submissionRepository.findByStudentUserId(userId);
+    }
+
+    public Submission saveSubmission(Submission submission) {
+        return submissionRepository.save(submission);
+    }
+
+    public Submission updateSubmissionStatus(Long id, Submission.Status status) {
+        Submission submission = getSubmissionById(id);
+        submission.setStatus(status);
+        return submissionRepository.save(submission);
+    }
+
+    public Submission updateSubmissionGrade(Long id, Short grade) {
+        Submission submission = getSubmissionById(id);
+        submission.setGrade(grade);
+        return submissionRepository.save(submission);
+    }
+
 }

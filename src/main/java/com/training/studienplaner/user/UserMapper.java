@@ -4,6 +4,8 @@ import com.training.studienplaner.course.CourseMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = CourseMapper.class)
 public interface UserMapper {
 
@@ -16,4 +18,6 @@ public interface UserMapper {
 
     // Entity → Short DTO
     UserShortDto toShortDto(User user);
+
+    List<UserResponseDto> toResponseDto(List<User> users);
 }

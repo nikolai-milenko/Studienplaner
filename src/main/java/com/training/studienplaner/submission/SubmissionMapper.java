@@ -4,6 +4,8 @@ import com.training.studienplaner.user.UserMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = {AssignmentMapper.class, UserMapper.class})
 public interface SubmissionMapper {
     // DTO → Entity
@@ -13,4 +15,5 @@ public interface SubmissionMapper {
     @Mapping(source = "assignment", target = "assignment")
     @Mapping(source = "student", target = "student")
     SubmissionResponseDto toResponseDto(Submission submission);
+    List<SubmissionResponseDto> toResponseDto(List<Submission> submissionList);
 }

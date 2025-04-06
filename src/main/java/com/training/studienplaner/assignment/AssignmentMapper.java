@@ -4,6 +4,8 @@ import com.training.studienplaner.course.CourseMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = {CourseMapper.class})
 public interface AssignmentMapper {
     // RequestDTO -> Entity
@@ -11,7 +13,8 @@ public interface AssignmentMapper {
 
     // Entity -> ResponseDTO
     @Mapping(source = "course", target = "course")
-    AssignmentResponseDto toDto(Assignment entity);
+    AssignmentResponseDto toResponseDto(Assignment entity);
+    List<AssignmentResponseDto> toResponseDto(List<Assignment> entity);
 
     // Entity -> ShortDTO
     @Mapping(source = "course", target = "course")
