@@ -28,14 +28,13 @@ Das Projekt verwaltet Benutzer, Kurse, Aufgaben und Einreichungen für Studieren
 ✅ MapStruct-Mapping zwischen Entities und DTOs  
 ✅ RESTful API mit sinnvollen Endpunkten  
 ✅ PostgreSQL-Datenbank über Docker Compose integriert  
-✅ Vorbereitung auf weitere Features (Validation, Auth, Tests)
+✅ Datenvalidierung mit `javax.validation`
+✅ API-Dokumentation mit Swagger / OpenAPI
 
 ## 🧩 Nächste Schritte (Roadmap)
 
-- Datenvalidierung mit `javax.validation`
-- Globale Fehlerbehandlung mit `@ControllerAdvice`
-- API-Dokumentation mit Swagger / OpenAPI
 - Unit-Tests und Integrationstests
+- Globale Fehlerbehandlung mit `@ControllerAdvice`
 - Fehler-Logging und Monitoring
 - User-Authentifizierung (z.B. JWT)
 

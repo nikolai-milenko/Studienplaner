@@ -29,8 +29,9 @@ public class Submission {
     @JoinColumn(name = "student_id", nullable = false)
     private User student;
 
+    @Builder.Default
     @Column(name = "submittedAt")
-    private LocalDateTime submittedAt;
+    private LocalDateTime submittedAt = LocalDateTime.now();
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -44,15 +45,9 @@ public class Submission {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Status status = Status.NOT_SUBMITTED;
 
     @Column
     private Short grade;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.submittedAt == null) {
-            this.submittedAt = LocalDateTime.now();
-        }
-    }
 }

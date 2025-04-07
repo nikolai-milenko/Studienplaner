@@ -2,7 +2,6 @@ package com.training.studienplaner.submission;
 import com.training.studienplaner.assignment.AssignmentMapper;
 import com.training.studienplaner.user.UserMapper;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -12,8 +11,6 @@ public interface SubmissionMapper {
     Submission toEntity(SubmissionRequestDto dto);
 
     // Entity → Response DTO
-    @Mapping(source = "assignment", target = "assignment")
-    @Mapping(source = "student", target = "student")
     SubmissionResponseDto toResponseDto(Submission submission);
     List<SubmissionResponseDto> toResponseDto(List<Submission> submissionList);
 }

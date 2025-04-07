@@ -2,7 +2,6 @@ package com.training.studienplaner.assignment;
 
 import com.training.studienplaner.course.CourseMapper;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -12,11 +11,9 @@ public interface AssignmentMapper {
     Assignment toEntity(AssignmentRequestDto dto);
 
     // Entity -> ResponseDTO
-    @Mapping(source = "course", target = "course")
     AssignmentResponseDto toResponseDto(Assignment entity);
     List<AssignmentResponseDto> toResponseDto(List<Assignment> entity);
 
     // Entity -> ShortDTO
-    @Mapping(source = "course", target = "course")
     AssignmentShortDto toShortDto(Assignment entity);
 }

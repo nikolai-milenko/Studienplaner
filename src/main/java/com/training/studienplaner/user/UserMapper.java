@@ -2,7 +2,6 @@ package com.training.studienplaner.user;
 
 import com.training.studienplaner.course.CourseMapper;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -13,7 +12,6 @@ public interface UserMapper {
     User toEntity(UserRequestDto dto);
 
     // Entity → Response DTO
-    @Mapping(source = "coursesList", target = "coursesList")
     UserResponseDto toResponseDto(User user);
 
     // Entity → Short DTO
