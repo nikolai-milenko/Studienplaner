@@ -1,5 +1,6 @@
 package com.training.studienplaner.submission;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class SubmissionController {
     }
 
     @PostMapping
-    public ResponseEntity<SubmissionResponseDto> createSubmission(@RequestBody SubmissionRequestDto submissionDto) {
+    public ResponseEntity<SubmissionResponseDto> createSubmission(@Valid @RequestBody SubmissionRequestDto submissionDto) {
         Submission submission = submissionMapper.toEntity(submissionDto);
         Submission savedSubmission = submissionService.saveSubmission(submission);
         SubmissionResponseDto response = submissionMapper.toResponseDto(savedSubmission);

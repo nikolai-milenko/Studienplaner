@@ -3,6 +3,7 @@ package com.training.studienplaner.user;
 import com.training.studienplaner.course.Course;
 import com.training.studienplaner.course.CourseMapper;
 import com.training.studienplaner.course.CourseResponseDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class UserController {
 
 
     @PostMapping("/")
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto userRequestDto) {
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
         User user = userMapper.toEntity(userRequestDto);
         User savedUser = userService.createUser(user);
         UserResponseDto responseDto = userMapper.toResponseDto(savedUser);
