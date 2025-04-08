@@ -1,102 +1,115 @@
+# 📚 Studienplaner
 
-# 📚 Studienplaner (MVP)
+Studienplaner ist eine Anwendung zur Organisation von Kursen, Aufgaben und Einreichungen für Studierende und Lehrende.  
+Das Projekt ist ein Backend-MVP mit vollständigen CRUD-Operationen und validierter REST-API.
 
-Dies ist ein minimal funktionsfähiges Backend-Projekt (MVP) für eine Studienplaner-Anwendung.  
-Das Projekt verwaltet Benutzer, Kurse, Aufgaben und Einreichungen für Studierende und Lehrkräfte.
+## 🚀 Technologien
 
-## 🚀 Tech-Stack
+- Java 21
+- Spring Boot 3
+- Spring Data JPA
+- MapStruct
+- Lombok
+- H2 In-Memory-Datenbank (für Tests)
+- Maven
+- Swagger UI
+- GitHub Actions (CI/CD)
+- JaCoCo (Test Coverage)
+- Codecov (Coverage Reporting)
 
-- **Java 21**
-- **Spring Boot 3.4.4**
-- **Spring Data JPA**
-- **PostgreSQL**
-- **MapStruct**
-- **Lombok**
-- **Docker & Docker Compose**
+## 🔧 Funktionen
 
-## 📦 Projektstruktur
+- Verwaltung von Nutzern (Studierende, Lehrende, Admins)
+- Verwaltung von Kursen und deren Zuordnung zu Lehrenden
+- Erstellung und Verwaltung von Aufgaben für Kurse
+- Automatische Generierung von Submission-Plätzen für alle Studierenden beim Erstellen einer Aufgabe
+- Abgabe von Lösungen durch Studierende
+- Bewertungen und Statusverwaltung der Einreichungen
 
-- **/user** — Verwaltung der Benutzer (Admin, Student, Lehrkraft)
-- **/course** — Verwaltung der Kurse
-- **/assignment** — Verwaltung der Aufgaben (Assignments)
-- **/submission** — Verwaltung der Einreichungen (Submissions)
+## ✅ Projektstatus
 
-## 📌 Aktueller Stand
+- [x] Backend MVP fertiggestellt
+- [x] DTOs & Mapper implementiert
+- [x] Validierung der Anfrage-Daten
+- [x] Unit-Tests für Repository-Schicht (User & Submission)
+- [x] Swagger UI dokumentiert
+- [x] CI/CD eingerichtet (Build, Tests, Coverage)
+- [x] Code Coverage Reporting mit Codecov
+- [ ] Integrationstests noch ausstehend
+- [ ] Security (Spring Security) noch ausstehend
+- [ ] Eventuelle Erweiterung auf E-Mail-Benachrichtigungen
+- [ ] Frontend-Integration
 
-✅ CRUD für alle Kern-Entitäten  
-✅ DTOs für saubere API-Datenübertragung  
-✅ MapStruct-Mapping zwischen Entities und DTOs  
-✅ RESTful API mit sinnvollen Endpunkten  
-✅ PostgreSQL-Datenbank über Docker Compose integriert  
-✅ Datenvalidierung mit `javax.validation`
-✅ API-Dokumentation mit Swagger / OpenAPI
+## 🛠️ Lokale Entwicklung
 
-## 🧩 Nächste Schritte (Roadmap)
-
-- Unit-Tests und Integrationstests
-- Globale Fehlerbehandlung mit `@ControllerAdvice`
-- Fehler-Logging und Monitoring
-- User-Authentifizierung (z.B. JWT)
-
-## ⚙️ Docker
-
-Das Projekt ist vollständig dockerisiert.  
-Zum Starten der Anwendung:
+Projekt builden:
 
 ```bash
-docker-compose up --build
+mvn clean install
 ```
 
-> Das Backend läuft anschließend auf: **http://localhost:8080**
+App starten:
 
-## 💡 API-Endpunkte
+```bash
+mvn spring-boot:run
+```
 
-### Benutzer
-- `GET /users` — Alle Benutzer abrufen
-- `POST /users` — Benutzer erstellen
-- `DELETE /users/{id}` — Benutzer löschen
-- `GET /users/{id}/courses` — Kurse eines Benutzers abrufen
-- `GET /users/students` — Alle Studierenden abrufen
+Swagger-Dokumentation anschauen:
+> Nach dem Start der Anwendung erreichbar unter:  
+> `http://localhost:8080/swagger-ui/index.html`
 
-### Kurse
-- `GET /courses` — Alle Kurse abrufen
-- `POST /courses` — Kurs erstellen
-- `DELETE /courses/{id}` — Kurs löschen
-- `GET /courses/{id}/assignments` — Aufgaben des Kurses abrufen
-- `GET /courses/{id}/students` — Teilnehmer des Kurses abrufen
+## 🧪 Tests
 
-### Aufgaben
-- `GET /assignments` — Alle Aufgaben abrufen
-- `POST /assignments` — Aufgabe erstellen
-- `DELETE /assignments/{id}` — Aufgabe löschen
+Tests lokal ausführen:
 
-### Einreichungen
-- `GET /submissions` — Alle Einreichungen abrufen
-- `POST /submissions` — Einreichung erstellen
-- `DELETE /submissions/{id}` — Einreichung löschen
-- `PUT /submissions/{id}/status` — Status aktualisieren
-- `PUT /submissions/{id}/grade` — Bewertung hinzufügen
+```bash
+mvn test
+```
 
-## 🛠️ Vorbereitung
+Test Coverage Report lokal generieren:
 
-1. Stelle sicher, dass Docker installiert ist.
-2. Baue das Projekt:
-   ```bash
-   ./mvnw clean package
-   ```
-3. Starte die Docker-Container:
-   ```bash
-   docker-compose up --build
-   ```
+```bash
+mvn jacoco:report
+```
+
+Report befindet sich danach unter:
+```
+target/site/jacoco/index.html
+```
+
+## 🖥️ CI/CD Pipeline
+
+- Build und Test laufen automatisch bei jedem Push oder Pull Request auf `dev` und `master`.
+- Code Coverage wird mit [Codecov](https://app.codecov.io) erfasst und aktualisiert.
+
+### Build-Status
+![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)
+
+### Code Coverage
+![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
+
+## 📂 Ordnerstruktur
+
+```
+src/
+ ├── main/
+ │    ├── java/com/training/studienplaner/
+ │    │     ├── assignment/
+ │    │     ├── course/
+ │    │     ├── submission/
+ │    │     └── user/
+ │    └── resources/
+ │          └── application.yml
+ └── test/
+      └── java/com/training/studienplaner/
+```
+
+## 📄 Lizenz
+
+Private Entwicklung im Rahmen von Lernzwecken.
 
 ---
 
-## 👥 Autoren
-
-- Nikolai Milenko — Hauptentwickler
-
----
-
-## 🏁 Status
-
-> ✅ MVP erreicht — bereit für nächste Ausbaustufen 🚀
+> Aktueller Stand: Stabiler MVP ✅
+>
+> Ziel: Weiterentwicklung zur produktionsreifen Applikation
