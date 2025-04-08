@@ -1,3 +1,6 @@
+![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)
+![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
+
 # 📚 Studienplaner
 
 Studienplaner ist eine Anwendung zur Organisation von Kursen, Aufgaben und Einreichungen für Studierende und Lehrende.  
@@ -81,12 +84,6 @@ target/site/jacoco/index.html
 
 - Build und Test laufen automatisch bei jedem Push oder Pull Request auf `dev` und `master`.
 - Code Coverage wird mit [Codecov](https://app.codecov.io) erfasst und aktualisiert.
-
-### Build-Status
-![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)
-
-### Code Coverage
-![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
 
 ## 📂 Ordnerstruktur
 
