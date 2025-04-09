@@ -50,7 +50,7 @@ public class UserController {
 
     @GetMapping("/students")
     public ResponseEntity<List<UserResponseDto>> getStudents() {
-        List<User> students = userService.getAllStudents(User.Role.STUDENT);
+        List<User> students = userService.findUsersByRole(User.Role.STUDENT);
         List<UserResponseDto> response = userMapper.toResponseDto(students);
         return ResponseEntity.ok(response);
     }

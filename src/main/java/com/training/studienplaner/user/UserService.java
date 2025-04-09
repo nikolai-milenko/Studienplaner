@@ -39,12 +39,12 @@ public class UserService{
                 .orElseThrow(() -> new EntityNotFoundException("User not found by email"));
     }
 
-    public List<User> getAllStudents(User.Role role) {
-        List<User> students = userRepository.findAllByRole(role);
-        if (students.isEmpty()) {
-            throw new EntityNotFoundException("There are no students");
+    public List<User> findUsersByRole(User.Role role) {
+        List<User> users = userRepository.findAllByRole(role);
+        if (users.isEmpty()) {
+            throw new EntityNotFoundException("There are no users with role " + role);
         }
-        return students;
+        return users;
     }
 
     public List<Course> getAllCoursesForUser(Long userId){
