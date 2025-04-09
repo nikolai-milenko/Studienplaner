@@ -29,10 +29,6 @@ public class SubmissionService {
         submissionRepository.saveAll(submissions);
     }
 
-    public void createSubmission(Submission submission) {
-        submissionRepository.save(submission);
-    }
-
     public List<Submission> getAllSubmissions() {
         return submissionRepository.findAll();
     }
