@@ -87,3 +87,42 @@ jobs:
 
       - name: Run Checkstyle
         run: mvn checkstyle:check
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: studienplaner-jar
+          path: .
+
+      - name: Rename JAR file
+        run: mv Studienplaner-0.0.1-SNAPSHOT.jar Studienplaner-${{ github.run_number }}.jar
+
+      - name: Generate changelog
+        id: changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          files: Studienplaner-${{ github.run_number }}.jar
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

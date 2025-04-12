@@ -38,28 +38,63 @@ Das Projekt ist ein Backend-MVP mit vollständigen CRUD-Operationen und validier
 - [x] Swagger UI dokumentiert
 - [x] CI/CD eingerichtet (Build, Tests, Coverage)
 - [x] Code Coverage Reporting mit Codecov
-- [ ] Integrationstests noch ausstehend
+- [x] Integrationstests
 - [ ] Security (Spring Security) noch ausstehend
 - [ ] Eventuelle Erweiterung auf E-Mail-Benachrichtigungen
 - [ ] Frontend-Integration
 
-## 🛠️ Lokale Entwicklung
 
-Projekt builden:
 
-```bash
-mvn clean install
-```
+## 🛠️ Installation & Verwendung
 
-App starten:
+### Option 1: Lokale Installation (Java muss installiert sein)
 
-```bash
-mvn spring-boot:run
-```
+1. **Java installieren (falls nicht vorhanden):**
+   - [Java 21 herunterladen (Eclipse Temurin)](https://adoptium.net/de/temurin/releases/?version=21)
 
-Swagger-Dokumentation anschauen:
-> Nach dem Start der Anwendung erreichbar unter:  
-> `http://localhost:8080/swagger-ui/index.html`
+2. **Projekt klonen:**
+   ```bash
+   git clone https://github.com/nikolai-milenko/Studienplaner.git
+   cd Studienplaner
+   ```
+
+3. **Build ausführen:**
+   ```bash
+   ./mvnw clean install
+   ```
+
+4. **Docker-Container aus lokal gebautem Jar starten:**
+   ```bash
+   docker build -t studienplaner .
+   docker-compose up --build
+   ```
+
+### Option 2: Mit Docker und heruntergeladenem Jar (Java wird nicht benötigt)
+
+1. **Docker installieren (falls nicht vorhanden):**
+   - [Docker Desktop herunterladen](https://www.docker.com/products/docker-desktop)
+
+2. **Projekt klonen:**
+   ```bash
+   git clone https://github.com/nikolai-milenko/Studienplaner.git
+   cd Studienplaner
+   ```
+
+3. **Jar-Datei herunterladen:**
+   - Lade die neueste `Studienplaner-0.0.1-SNAPSHOT.jar` aus den GitHub Actions-Artefakten oder GitHub Releases herunter.
+   - Lege die Datei im Root-Verzeichnis des Projekts ab.
+
+4. **Docker-Container starten:**
+   ```bash
+   docker-compose up --build
+   ```
+
+---
+
+Nach dem Start erreichst du die Anwendung unter: [http://localhost:8080](http://localhost:8080)  
+Die Swagger-UI findest du hier: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+
+
 
 ## 🧪 Tests
 
