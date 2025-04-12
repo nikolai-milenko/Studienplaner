@@ -81,7 +81,7 @@ Das Projekt ist ein Backend-MVP mit vollständigen CRUD-Operationen und validier
    ```
 
 3. **Jar-Datei herunterladen:**
-   - Lade die neueste `Studienplaner-0.0.1-SNAPSHOT.jar` aus den GitHub Actions-Artefakten oder GitHub Releases herunter.
+   - Lade die neueste jar-Datei aus den GitHub Releases herunter.
    - Lege die Datei im Root-Verzeichnis des Projekts ab.
 
 4. **Docker-Container starten:**
