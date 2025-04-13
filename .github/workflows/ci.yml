@@ -47,22 +47,25 @@ jobs:
           name: studienplaner-msi
           path: .
 
-      - name: Get latest release from master
+      - name: Get latest release from master (Debug)
         id: get_latest_release
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            console.log("github:", github);
-            console.log("context.repo:", context.repo);
-            const releases = await github.rest.repos.listReleases({
+            console.log("Context repo object:", context.repo);
+            // Получаем релизы и выводим полный ответ в виде JSON
+            const releasesResponse = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            if (releases.data.length === 0) {
+            console.log("Releases response:", JSON.stringify(releasesResponse, null, 2));
+            if (releasesResponse.data.length === 0) {
               core.setFailed('No releases found in this repository.');
             } else {
-              core.setOutput('tag', releases.data[0].tag_name);
+              const latestTag = releasesResponse.data[0].tag_name;
+              console.log("Latest release tag:", latestTag);
+              core.setOutput('tag', latestTag);
             }
           result-encoding: string
 
