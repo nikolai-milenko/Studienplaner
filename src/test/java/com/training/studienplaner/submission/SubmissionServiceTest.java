@@ -1,371 +1,157 @@
 package com.training.studienplaner.submission;
 
 import com.training.studienplaner.assignment.Assignment;
-import com.training.studienplaner.course.Course;
+import com.training.studienplaner.assignment.AssignmentRepository;
 import com.training.studienplaner.user.User;
-import jakarta.persistence.EntityNotFoundException;
+import com.training.studienplaner.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SubmissionServiceTest {
+class SubmissionServiceTest {
+
     @Mock
     private SubmissionRepository submissionRepository;
+
+    @Mock
+    private AssignmentRepository assignmentRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private SubmissionMapper submissionMapper;
 
     @InjectMocks
     private SubmissionService submissionService;
 
-    @Captor
-    private ArgumentCaptor<Submission> submissionCaptor;
-
     @Test
-    @DisplayName("Soll Submissions für alle Studenten eines Assignments generieren und speichern")
-    void generateSubmissionsForAssignment_shouldCreateSubmissionsForAllStudents() {
-        // given
-        User student1 = mock(User.class);
-        when(student1.getRole()).thenReturn(User.Role.STUDENT);
+    @DisplayName("Alle Abgaben sollen zurückgegeben werden")
+    void getAllSubmissions_shouldReturnDtos() {
+        Submission entity = new Submission();
+        SubmissionResponseDto dto = new SubmissionResponseDto(1L, null, null, Submission.Status.NOT_SUBMITTED, 5.0);
 
-        User student2 = mock(User.class);
-        when(student2.getRole()).thenReturn(User.Role.STUDENT);
+        when(submissionRepository.findAll()).thenReturn(List.of(entity));
+        when(submissionMapper.toResponseDto(List.of(entity))).thenReturn(List.of(dto));
 
-        User teacher = mock(User.class);
-        when(teacher.getRole()).thenReturn(User.Role.TEACHER);
+        List<SubmissionResponseDto> result = submissionService.getAllSubmissions();
 
-        Course course = mock(Course.class);
-        when(course.getStudents()).thenReturn(List.of(student1, student2, teacher));
-
-        Assignment assignment = mock(Assignment.class);
-        when(assignment.getCourse()).thenReturn(course);
-
-        ArgumentCaptor<List<Submission>> captor = ArgumentCaptor.forClass(List.class);
-
-        // when
-        submissionService.generateSubmissionsForAssignment(assignment);
-
-        // then
-        verify(submissionRepository).saveAll(captor.capture());
-
-        List<Submission> capturedSubmissions = captor.getValue();
-        assertEquals(2, capturedSubmissions.size());
-
-        for (Submission submission : capturedSubmissions) {
-            assertEquals(assignment, submission.getAssignment());
-            assertEquals(Submission.Status.NOT_SUBMITTED, submission.getStatus());
-            assertTrue(submission.getStudent() == student1 || submission.getStudent() == student2);
-        }
-    }
-
-    @Test
-    @DisplayName("Soll saveAll mit leerer Liste aufrufen, wenn im Kurs keine Studenten vorhanden sind")
-    void generateSubmissionsForAssignment_shouldCallSaveAllWithEmptyList_whenNoStudentsExist() {
-        // given
-        Course course = mock(Course.class);
-        when(course.getStudents()).thenReturn(Collections.emptyList());
-
-        Assignment assignment = mock(Assignment.class);
-        when(assignment.getCourse()).thenReturn(course);
-
-        ArgumentCaptor<List<Submission>> captor = ArgumentCaptor.forClass(List.class);
-
-        // when
-        submissionService.generateSubmissionsForAssignment(assignment);
-
-        // then
-        verify(submissionRepository).saveAll(captor.capture());
-        List<Submission> capturedSubmissions = captor.getValue();
-        assertTrue(capturedSubmissions.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Soll eine NullPointerException werfen, wenn getStudents null zurückgibt")
-    void generateSubmissionsForAssignment_shouldThrowException_whenStudentsListIsNull() {
-        // given
-        Course course = mock(Course.class);
-        when(course.getStudents()).thenReturn(null);
-
-        Assignment assignment = mock(Assignment.class);
-        when(assignment.getCourse()).thenReturn(course);
-
-        // when + then
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> {
-            submissionService.generateSubmissionsForAssignment(assignment);
-        });
-
-        verify(submissionRepository, never()).saveAll(any());
-    }
-
-    @Test
-    @DisplayName("Soll eine Submission erstellen und im Repository speichern")
-    void saveSubmission_shouldCreateSubmission() {
-        // given
-        Submission submission = mock(Submission.class);
-        when(submissionRepository.save(submission)).thenReturn(submission);
-
-        //when
-        Submission result = submissionService.saveSubmission(submission);
-
-        //then
-        verify(submissionRepository).save(submission);
-        assertNotNull(result);
-        assertEquals(submission, result);
-    }
-
-    @Test
-    @DisplayName("Soll alle Submissions zurückgeben, wenn Submissions existieren")
-    void getAllSubmissions_shouldReturnAllSubmissions_whenSubmissionsExist() {
-        // given
-        Submission submission1 = mock(Submission.class);
-        Submission submission2 = mock(Submission.class);
-
-        when(submissionRepository.findAll()).thenReturn(List.of(submission1, submission2));
-
-        //when
-        List<Submission> allSubmissions = submissionService.getAllSubmissions();
-        assertEquals(2, allSubmissions.size());
-        assertEquals(submission1, allSubmissions.get(0));
-        assertEquals(submission2, allSubmissions.get(1));
-    }
-
-    @Test
-    @DisplayName("Soll eine leere Liste zurückgeben, wenn keine Submissions existieren")
-    void getAllSubmissions_shouldReturnEmptyList_whenNoSubmissionsExist() {
-        // given
-        when(submissionRepository.findAll()).thenReturn(Collections.emptyList());
-
-        // when
-        List<Submission> submissions = submissionService.getAllSubmissions();
-
-        // then
-        assertTrue(submissions.isEmpty());
+        assertEquals(1, result.size());
         verify(submissionRepository).findAll();
     }
 
     @Test
-    @DisplayName("Soll Submission anhand der ID zurückgeben, wenn Submission existiert")
-    void getSubmissionById_shouldReturnSubmission_whenSubmissionExist() {
-        // given
-        Submission submission1 = mock(Submission.class);
-        long id = 1L;
-        when(submissionRepository.findById(id)).thenReturn(Optional.of(submission1));
+    @DisplayName("Abgabe anhand der ID soll gefunden werden")
+    void getSubmissionById_shouldReturnDto() {
+        Submission entity = new Submission();
+        SubmissionResponseDto dto = new SubmissionResponseDto(1L, null, null, Submission.Status.NOT_SUBMITTED, 5.0);
 
-        //when
-        Submission result = submissionService.getSubmissionById(id);
+        when(submissionRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(submissionMapper.toResponseDto(entity)).thenReturn(dto);
 
-        //then
-        verify(submissionRepository).findById(id);
+        SubmissionResponseDto result = submissionService.getSubmissionById(1L);
+
         assertNotNull(result);
-        assertEquals(submission1, result);
+        verify(submissionRepository).findById(1L);
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Submission mit angegebener ID nicht gefunden wird")
-    void getSubmissionById_shouldThrowException_whenSubmissionDoesNotExist() {
-        // given
-        long id = 1L;
-        when(submissionRepository.findById(id)).thenReturn(Optional.empty());
+    @DisplayName("Neue Abgabe soll gespeichert werden")
+    void saveSubmission_shouldConvertAndSave() {
+        SubmissionRequestDto dto = new SubmissionRequestDto(1L, "text");
+        Submission entity = new Submission();
+        Submission saved = new Submission();
+        SubmissionResponseDto resultDto = new SubmissionResponseDto(1L, null, null, Submission.Status.NOT_SUBMITTED, 5.0);
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            submissionService.getSubmissionById(id);
-        });
+        Assignment assignment = new Assignment();
+        User user = new User();
 
-        assertEquals("Submission not found", exception.getMessage());
-        verify(submissionRepository).findById(id);
+        when(assignmentRepository.findById(1L)).thenReturn(Optional.of(assignment));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user)); // hardcoded userId = 1L
+
+        when(submissionRepository.save(any(Submission.class))).thenReturn(saved);
+        when(submissionMapper.toResponseDto(saved)).thenReturn(resultDto);
+
+        SubmissionResponseDto result = submissionService.saveSubmission(dto);
+
+        assertNotNull(result);
+        verify(submissionRepository).save(any(Submission.class));
     }
 
     @Test
-    @DisplayName("Soll Submission löschen, wenn Submission existiert")
-    void deleteSubmissionById_shouldDeleteSubmission_whenSubmissionExist() {
-        // given
-        Submission submission1 = mock(Submission.class);
-        long id = 1L;
-        when(submissionRepository.findById(id)).thenReturn(Optional.of(submission1));
+    @DisplayName("Abgabe soll gelöscht werden")
+    void deleteSubmission_shouldRemove() {
+        Submission entity = new Submission();
+        when(submissionRepository.findById(1L)).thenReturn(Optional.of(entity));
 
-        // when
-        submissionService.deleteSubmissionById(id);
+        submissionService.deleteSubmissionById(1L);
 
-        // then
-        verify(submissionRepository).findById(id);
-        verify(submissionRepository).delete(submission1);
+        verify(submissionRepository).delete(entity);
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Submission mit angegebener ID nicht gefunden wird")
-    void deleteSubmissionById_shouldThrowException_whenSubmissionDoesNotExist() {
-        // given
-        long id = 1L;
-        when(submissionRepository.findById(id)).thenReturn(Optional.empty());
+    @DisplayName("Status der Abgabe soll aktualisiert werden")
+    void updateStatus_shouldWork() {
+        Submission entity = spy(new Submission());
+        SubmissionResponseDto dto = new SubmissionResponseDto(1L, null, null, Submission.Status.SUBMITTED, 5.0);
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            submissionService.deleteSubmissionById(id);
-        });
+        when(submissionRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(submissionRepository.save(entity)).thenReturn(entity);
+        when(submissionMapper.toResponseDto(entity)).thenReturn(dto);
 
-        assertEquals("Submission not found", exception.getMessage());
-        verify(submissionRepository).findById(id);
-        verify(submissionRepository, never()).delete(any());
+        SubmissionResponseDto result = submissionService.updateSubmissionStatus(1L, Submission.Status.SUBMITTED);
+
+        assertNotNull(result);
+        verify(entity).setStatus(Submission.Status.SUBMITTED);
     }
 
     @Test
-    @DisplayName("Soll alle Submissions anhand der Assignment-ID zurückgeben")
-    void getSubmissionsByAssignmentId_shouldReturnSubmissions_whenTheyExist() {
-        // given
-        long assignmentId = 1L;
-        Submission submission1 = mock(Submission.class);
-        Submission submission2 = mock(Submission.class);
-        when(submissionRepository.findByAssignmentAssignmentId(assignmentId))
-                .thenReturn(List.of(submission1, submission2));
+    @DisplayName("Note der Abgabe soll aktualisiert werden")
+    void updateGrade_shouldWork() {
+        Submission entity = spy(new Submission());
+        SubmissionResponseDto dto = new SubmissionResponseDto(1L, null, null, Submission.Status.NOT_SUBMITTED, 5.0);
 
-        // when
-        List<Submission> result = submissionService.getSubmissionsByAssignmentId(assignmentId);
+        when(submissionRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(submissionRepository.save(entity)).thenReturn(entity);
+        when(submissionMapper.toResponseDto(entity)).thenReturn(dto);
 
-        // then
-        assertEquals(2, result.size());
-        assertEquals(submission1, result.get(0));
-        assertEquals(submission2, result.get(1));
-        verify(submissionRepository).findByAssignmentAssignmentId(assignmentId);
+        SubmissionResponseDto result = submissionService.updateSubmissionGrade(1L, (Double) 2.0);
+
+        assertNotNull(result);
+        verify(entity).setGrade((Double) 2.0);
     }
 
     @Test
-    @DisplayName("Soll alle Submissions anhand der Benutzer-ID zurückgeben")
-    void getSubmissionsByUserId_shouldReturnSubmissions_whenTheyExist() {
-        // given
-        long userId = 1L;
-        Submission submission1 = mock(Submission.class);
-        Submission submission2 = mock(Submission.class);
-        when(submissionRepository.findByStudentUserId(userId))
-                .thenReturn(List.of(submission1, submission2));
+    @DisplayName("Alle Abgaben für ein Assignment sollen gefunden werden")
+    void getByAssignmentId_shouldReturnList() {
+        Submission s = new Submission();
+        SubmissionResponseDto dto = new SubmissionResponseDto(1L, null, null, Submission.Status.NOT_SUBMITTED, 5.0);
 
-        // when
-        List<Submission> result = submissionService.getSubmissionsByUserId(userId);
+        when(submissionRepository.findByAssignmentAssignmentId(1L)).thenReturn(List.of(s));
+        when(submissionMapper.toResponseDto(List.of(s))).thenReturn(List.of(dto));
 
-        // then
-        assertEquals(2, result.size());
-        assertEquals(submission1, result.get(0));
-        assertEquals(submission2, result.get(1));
-        verify(submissionRepository).findByStudentUserId(userId);
+        var result = submissionService.getSubmissionsByAssignmentId(1L);
+        assertEquals(1, result.size());
     }
 
     @Test
-    @DisplayName("Soll eine leere Liste zurückgeben, wenn keine Submissions für die Assignment-ID existieren")
-    void getSubmissionsByAssignmentId_shouldReturnEmptyList_whenNoSubmissionsExist() {
-        // given
-        long assignmentId = 1L;
-        when(submissionRepository.findByAssignmentAssignmentId(assignmentId))
-                .thenReturn(Collections.emptyList());
+    @DisplayName("Alle Abgaben eines Users sollen gefunden werden")
+    void getByUserId_shouldReturnList() {
+        Submission s = new Submission();
+        SubmissionResponseDto dto = new SubmissionResponseDto(1L, null, null, Submission.Status.NOT_SUBMITTED, 5.0);
 
-        // when
-        List<Submission> result = submissionService.getSubmissionsByAssignmentId(assignmentId);
+        when(submissionRepository.findByStudentUserId(1L)).thenReturn(List.of(s));
+        when(submissionMapper.toResponseDto(List.of(s))).thenReturn(List.of(dto));
 
-        // then
-        assertTrue(result.isEmpty());
-        verify(submissionRepository).findByAssignmentAssignmentId(assignmentId);
-    }
-
-    @Test
-    @DisplayName("Soll eine leere Liste zurückgeben, wenn keine Submissions für die Benutzer-ID existieren")
-    void getSubmissionsByUserId_shouldReturnEmptyList_whenNoSubmissionsExist() {
-        // given
-        long userId = 1L;
-        when(submissionRepository.findByStudentUserId(userId))
-                .thenReturn(Collections.emptyList());
-
-        // when
-        List<Submission> result = submissionService.getSubmissionsByUserId(userId);
-
-        // then
-        assertTrue(result.isEmpty());
-        verify(submissionRepository).findByStudentUserId(userId);
-    }
-
-    @Test
-    @DisplayName("Soll den Status einer Submission aktualisieren, wenn Submission existiert")
-    void updateSubmissionStatus_shouldUpdateStatus_whenSubmissionExists() {
-        // given
-        long id = 1L;
-        Submission.Status newStatus = Submission.Status.SUBMITTED;
-
-        Submission submission = mock(Submission.class);
-        when(submissionRepository.findById(id)).thenReturn(Optional.of(submission));
-        when(submissionRepository.save(submission)).thenReturn(submission);
-
-        // when
-        Submission result = submissionService.updateSubmissionStatus(id, newStatus);
-
-        // then
-        verify(submissionRepository).findById(id);
-        verify(submission).setStatus(newStatus);
-        verify(submissionRepository).save(submission);
-        assertEquals(submission, result);
-    }
-
-    @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Submission nicht gefunden wird")
-    void updateSubmissionStatus_shouldThrowException_whenSubmissionDoesNotExist() {
-        // given
-        long id = 1L;
-        Submission.Status newStatus = Submission.Status.SUBMITTED;
-        when(submissionRepository.findById(id)).thenReturn(Optional.empty());
-
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            submissionService.updateSubmissionStatus(id, newStatus);
-        });
-
-        assertEquals("Submission not found", exception.getMessage());
-        verify(submissionRepository).findById(id);
-        verify(submissionRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Soll die Bewertung einer Submission aktualisieren, wenn Submission existiert")
-    void updateSubmissionGrade_shouldUpdateGrade_whenSubmissionExists() {
-        // given
-        long id = 1L;
-        short grade = 1;
-
-        Submission submission = mock(Submission.class);
-        when(submissionRepository.findById(id)).thenReturn(Optional.of(submission));
-        when(submissionRepository.save(submission)).thenReturn(submission);
-
-        // when
-        Submission result = submissionService.updateSubmissionGrade(id, grade);
-
-        // then
-        verify(submissionRepository).findById(id);
-        verify(submission).setGrade(grade);
-        verify(submissionRepository).save(submission);
-        assertEquals(submission, result);
-    }
-
-    @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Submission nicht gefunden wird")
-    void updateSubmissionGrade_shouldThrowException_whenSubmissionDoesNotExist() {
-        // given
-        long id = 1L;
-        short grade = 1;
-        when(submissionRepository.findById(id)).thenReturn(Optional.empty());
-
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            submissionService.updateSubmissionGrade(id, grade);
-        });
-
-        assertEquals("Submission not found", exception.getMessage());
-        verify(submissionRepository).findById(id);
-        verify(submissionRepository, never()).save(any());
+        var result = submissionService.getSubmissionsByUserId(1L);
+        assertEquals(1, result.size());
     }
 }

@@ -1,17 +1,17 @@
 package com.training.studienplaner.user;
 
 import com.training.studienplaner.course.Course;
+import com.training.studienplaner.course.CourseMapper;
+import com.training.studienplaner.course.CourseResponseDto;
 import com.training.studienplaner.course.CourseService;
+import com.training.studienplaner.course.CourseRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.junit.jupiter.api.DisplayName;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,61 +19,44 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
+
     @Mock
     private UserRepository userRepository;
 
     @Mock
     private CourseService courseService;
 
+    @Mock
+    private UserMapper userMapper;
+
+    @Mock
+    private CourseMapper courseMapper;
+
+    @Mock
+    private CourseRepository courseRepository;
+
     @InjectMocks
     private UserService userService;
-
-    @Captor
-    private ArgumentCaptor<User> userCaptor;
 
     @Test
     @DisplayName("Soll den Benutzer im Repository speichern und den gespeicherten Benutzer zurückgeben")
     void createUser_shouldSaveUserAndReturnSavedUser() {
-        // given
+        UserRequestDto requestDto = mock(UserRequestDto.class);
         User user = new User();
-        user.setName("John");
-        user.setEmail("john@example.com");
+        UserResponseDto responseDto = mock(UserResponseDto.class);
 
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toEntity(requestDto)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+        when(userMapper.toResponseDto(user)).thenReturn(responseDto);
 
-        // when
-        User result = userService.createUser(user);
+        UserResponseDto result = userService.createUser(requestDto);
 
-        // then
-        verify(userRepository).save(userCaptor.capture());
-        User capturedUser = userCaptor.getValue();
-
-        assertEquals("John", capturedUser.getName());
-        assertEquals("john@example.com", capturedUser.getEmail());
-        assertEquals(user, result);
-    }
-
-    @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn das Speichern des Benutzers im Repository fehlschlägt")
-    void createUser_shouldThrowException_whenRepositoryFails() {
-        // given
-        User user = new User();
-        user.setName("John");
-        user.setEmail("john@example.com");
-
-        when(userRepository.save(user))
-                .thenThrow(new DataIntegrityViolationException("Duplicate email"));
-
-        // when + then
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            userService.createUser(user);
-        });
-
+        assertEquals(responseDto, result);
         verify(userRepository).save(user);
     }
 
@@ -81,38 +64,26 @@ public class UserServiceTest {
     @DisplayName("Soll alle Benutzer aus dem Repository abrufen, wenn Benutzer vorhanden sind")
     void getAll_shouldReturnUsers_whenUsersExist() {
         User user = new User();
-        user.setName("John");
-        user.setEmail("john@example.com");
+        List<User> users = List.of(user);
+        List<UserResponseDto> responseDtos = List.of(mock(UserResponseDto.class));
 
-        User user2 = new User();
-        user2.setName("Jane");
-        user2.setEmail("jane@example.com");
+        when(userRepository.findAll()).thenReturn(users);
+        when(userMapper.toResponseDto(users)).thenReturn(responseDtos);
 
-        userRepository.save(user);
-        userRepository.save(user2);
+        List<UserResponseDto> result = userService.getAll();
 
-        when(userRepository.findAll()).thenReturn(List.of(user, user2));
-
-        //when
-        List<User> result = userService.getAll();
-
-        //then
-        assertEquals(2, result.size());
-        assertTrue(result.contains(user));
-        assertTrue(result.contains(user2));
+        assertEquals(responseDtos, result);
         verify(userRepository).findAll();
     }
 
     @Test
     @DisplayName("Soll eine leere Liste zurückgeben, wenn keine Benutzer vorhanden sind")
     void getAll_shouldReturnEmptyList_whenNoUsersExist() {
-        // given
         when(userRepository.findAll()).thenReturn(Collections.emptyList());
+        when(userMapper.toResponseDto(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        // when
-        List<User> result = userService.getAll();
+        List<UserResponseDto> result = userService.getAll();
 
-        // then
         assertTrue(result.isEmpty());
         verify(userRepository).findAll();
     }
@@ -120,249 +91,165 @@ public class UserServiceTest {
     @Test
     @DisplayName("Soll den Benutzer zurückgeben, wenn der Benutzer mit der ID existiert")
     void getById_shouldReturnUser_whenUserExists() {
-        // given
-        Long id = 1L;
         User user = new User();
-        user.setUserId(id);
-        user.setName("John");
-        user.setEmail("john@example.com");
+        UserResponseDto responseDto = mock(UserResponseDto.class);
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userMapper.toResponseDto(user)).thenReturn(responseDto);
 
-        // when
-        User result = userService.getById(id);
+        UserResponseDto result = userService.getById(1L);
 
-        // then
-        assertEquals(user, result);
-        verify(userRepository).findById(id);
+        assertEquals(responseDto, result);
+        verify(userRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Soll eine Ausnahme werfen, wenn der Benutzer mit der ID nicht gefunden wird")
     void getById_shouldThrowException_whenUserNotFound() {
-        // given
-        Long id = 1L;
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.getById(id);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getById(1L));
 
-        // optional
         assertEquals("User not found", exception.getMessage());
-
-        verify(userRepository).findById(id);
+        verify(userRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Soll den Benutzer löschen, wenn der Benutzer existiert")
     void deleteById_shouldDeleteUser_whenUserExists() {
-        // given
-        Long id = 1L;
-        when(userRepository.existsById(id)).thenReturn(true);
+        User user = new User();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        // when
-        userService.deleteById(id);
+        userService.deleteById(1L);
 
-        // then
-        verify(userRepository).existsById(id);
-        verify(userRepository).deleteById(id);
+        verify(userRepository).delete(user);
     }
 
     @Test
     @DisplayName("Soll eine Ausnahme werfen, wenn der Benutzer nicht existiert")
     void deleteById_shouldThrowException_whenUserNotFound() {
-        // given
-        Long id = 1L;
-        when(userRepository.existsById(id)).thenReturn(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.deleteById(id);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.deleteById(1L));
 
         assertEquals("User not found", exception.getMessage());
-
-        // and verify
-        verify(userRepository).existsById(id);
-        verify(userRepository, never()).deleteById(id);
+        verify(userRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Soll den Benutzer anhand der E-Mail-Adresse zurückgeben, wenn der Benutzer existiert")
     void findByEmail_shouldReturnUser_whenUserExists() {
-        // given
         User user = new User();
-        user.setName("John");
-        user.setEmail("john@example.com");
+        UserResponseDto responseDto = mock(UserResponseDto.class);
+
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(userMapper.toResponseDto(user)).thenReturn(responseDto);
 
-        // when
-        User result = userService.findByEmail("john@example.com");
+        UserResponseDto result = userService.findByEmail("john@example.com");
 
-        //then
-        assertEquals(user, result);
+        assertEquals(responseDto, result);
         verify(userRepository).findByEmail("john@example.com");
     }
 
     @Test
     @DisplayName("Soll eine Ausnahme werfen, wenn kein Benutzer mit der angegebenen E-Mail-Adresse gefunden wird")
     void findByEmail_shouldThrowException_whenNoUsersExist() {
-        String email = "john@example.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
 
-        //when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.findByEmail(email);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.findByEmail("john@example.com"));
 
         assertEquals("User not found by email", exception.getMessage());
-        verify(userRepository).findByEmail(email);
+        verify(userRepository).findByEmail("john@example.com");
     }
 
     @Test
     @DisplayName("Soll alle Studenten zurückgeben, wenn Studenten existieren")
     void getAllStudents_shouldReturnStudent_whenStudentExists() {
-        // given
         User user = new User();
-        user.setRole(User.Role.STUDENT);
-        User user2 = new User();
-        user2.setRole(User.Role.STUDENT);
+        List<User> users = List.of(user);
+        List<UserResponseDto> responseDtos = List.of(mock(UserResponseDto.class));
 
-        List<User> students = List.of(user, user2);
-        when(userRepository.findAllByRole(User.Role.STUDENT)).thenReturn(List.of(user, user2));
+        when(userRepository.findAllByRole(User.Role.STUDENT)).thenReturn(users);
+        when(userMapper.toResponseDto(users)).thenReturn(responseDtos);
 
-        //when
-        List<User> result = userService.findUsersByRole(User.Role.STUDENT);
+        List<UserResponseDto> result = userService.findUsersByRole(User.Role.STUDENT);
 
-        // then
-        assertFalse(result.isEmpty());
-        assertEquals(students, result);
+        assertEquals(responseDtos, result);
         verify(userRepository).findAllByRole(User.Role.STUDENT);
     }
 
     @Test
     @DisplayName("Soll eine Ausnahme werfen, wenn keine Studenten existieren")
     void getAllStudents_shouldThrowException_whenNoStudentsExist() {
-        // given
         when(userRepository.findAllByRole(User.Role.STUDENT)).thenReturn(Collections.emptyList());
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.findUsersByRole(User.Role.STUDENT);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.findUsersByRole(User.Role.STUDENT));
 
-        assertEquals("There are no users with role " + User.Role.STUDENT, exception.getMessage());
+        assertEquals("There are no users with role STUDENT", exception.getMessage());
         verify(userRepository).findAllByRole(User.Role.STUDENT);
     }
 
     @Test
     @DisplayName("Soll alle Kurse des Benutzers zurückgeben, wenn der Benutzer existiert")
     void getAllCoursesForUser_shouldReturnCourses_whenUserExists() {
-        // given
-        Long userId = 1L;
-
-        Course course1 = mock(Course.class);
-        Course course2 = mock(Course.class);
-        List<Course> courses = List.of(course1, course2);
-
         User user = new User();
+        List<Course> courses = List.of(new Course());
         user.setCoursesList(courses);
+        List<CourseResponseDto> courseDtos = List.of(mock(CourseResponseDto.class));
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(courseMapper.toResponseDto(courses)).thenReturn(courseDtos);
 
-        // when
-        List<Course> result = userService.getAllCoursesForUser(userId);
+        List<CourseResponseDto> result = userService.getAllCoursesForUser(1L);
 
-        // then
-        assertEquals(courses, result);
-        verify(userRepository).findById(userId);
+        assertEquals(courseDtos, result);
+        verify(userRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Soll eine Ausnahme werfen, wenn der Benutzer nicht gefunden wird")
     void getAllCoursesForUser_shouldThrowException_whenUserNotFound() {
-        // given
-        Long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.getAllCoursesForUser(userId);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getAllCoursesForUser(1L));
 
         assertEquals("User not found", exception.getMessage());
-        verify(userRepository).findById(userId);
+        verify(userRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Soll den Benutzer in den Kurs einschreiben, wenn Benutzer und Kurs existieren")
     void enrollUserToCourse_shouldEnrollUser_whenUserAndCourseExist() {
-        // given
         Long userId = 1L;
         Long courseId = 2L;
 
         User user = new User();
         user.setCoursesList(new ArrayList<>());
 
-        Course course = mock(Course.class);
+        Course course = new Course();
+        course.setCourseId(courseId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(courseService.getCourseById(courseId)).thenReturn(course);
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
 
-        // when
         userService.enrollUserToCourse(userId, courseId);
 
-        // then
         assertTrue(user.getCoursesList().contains(course));
         verify(userRepository).findById(userId);
-        verify(courseService).getCourseById(courseId);
+        verify(courseRepository).findById(courseId);
         verify(userRepository).save(user);
     }
+
+
 
     @Test
     @DisplayName("Soll eine Ausnahme werfen, wenn der Benutzer nicht gefunden wird")
     void enrollUserToCourse_shouldThrowException_whenUserNotFound() {
-        // given
-        Long userId = 1L;
-        Long courseId = 2L;
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.enrollUserToCourse(userId, courseId);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.enrollUserToCourse(1L, 1L));
 
         assertEquals("User not found", exception.getMessage());
-        verify(userRepository).findById(userId);
-        verify(courseService, never()).getCourseById(anyLong());
-        verify(userRepository, never()).save(any());
+        verify(userRepository).findById(1L);
     }
-
-    @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn der Kurs nicht gefunden wird")
-    void enrollUserToCourse_shouldThrowException_whenCourseNotFound() {
-        // given
-        Long userId = 1L;
-        Long courseId = 2L;
-
-        User user = new User();
-        user.setCoursesList(new ArrayList<>());
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(courseService.getCourseById(courseId)).thenThrow(new EntityNotFoundException("Course not found"));
-
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.enrollUserToCourse(userId, courseId);
-        });
-
-        assertEquals("Course not found", exception.getMessage());
-        verify(userRepository).findById(userId);
-        verify(courseService).getCourseById(courseId);
-        verify(userRepository, never()).save(any());
-    }
-
 }

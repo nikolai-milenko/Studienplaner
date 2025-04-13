@@ -49,5 +49,5 @@ public class Submission {
     private Status status = Status.NOT_SUBMITTED;
 
     @Column
-    private Short grade;
+    private Double grade;
 }

@@ -1,10 +1,6 @@
 package com.training.studienplaner.course;
 
-import com.training.studienplaner.assignment.Assignment;
-import com.training.studienplaner.assignment.AssignmentMapper;
 import com.training.studienplaner.assignment.AssignmentResponseDto;
-import com.training.studienplaner.user.User;
-import com.training.studienplaner.user.UserMapper;
 import com.training.studienplaner.user.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,26 +12,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/courses")
 public class CourseController {
-    private final CourseMapper courseMapper;
+
     private final CourseService courseService;
-    private final AssignmentMapper assignmentMapper;
-    private final UserMapper userMapper;
 
     @GetMapping
-    public ResponseEntity<List<CourseResponseDto>> getAllCourses(){
-        return ResponseEntity.ok(courseMapper.toResponseDto(courseService.getAllCourses()));
+    public ResponseEntity<List<CourseResponseDto>> getAllCourses() {
+        List<CourseResponseDto> response = courseService.getAllCourses();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponseDto> getCourseById(@PathVariable Long id) {
-        return ResponseEntity.ok(courseMapper.toResponseDto(courseService.getCourseById(id)));
+        CourseResponseDto response = courseService.getCourseById(id);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
     public ResponseEntity<CourseResponseDto> createCourse(@RequestBody CourseRequestDto course) {
-        Course createdCourse = courseService.createCourse(courseMapper.toEntity(course));
-        return ResponseEntity.status(201).body(courseMapper.toResponseDto(createdCourse));
-
+        CourseResponseDto response = courseService.createCourse(course);
+        return ResponseEntity.status(201).body(response);
     }
 
     @DeleteMapping("/{id}")
@@ -46,17 +41,13 @@ public class CourseController {
 
     @GetMapping("/{id}/assignments")
     public ResponseEntity<List<AssignmentResponseDto>> getAssignmentsByCourseId(@PathVariable Long id) {
-        List<Assignment> assignments = courseService.getAssignmentsByCourseId(id);
-        List<AssignmentResponseDto> response = assignmentMapper.toResponseDto(assignments);
+        List<AssignmentResponseDto> response = courseService.getAssignmentsByCourseId(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/students")
     public ResponseEntity<List<UserResponseDto>> getStudentsByCourseId(@PathVariable Long id) {
-        List<User> students = courseService.getStudentsByCourseId(id);
-        List<UserResponseDto> response = userMapper.toResponseDto(students);
+        List<UserResponseDto> response = courseService.getStudentsByCourseId(id);
         return ResponseEntity.ok(response);
     }
-
-
 }

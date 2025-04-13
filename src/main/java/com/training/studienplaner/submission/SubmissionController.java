@@ -14,27 +14,20 @@ import java.util.List;
 public class SubmissionController {
 
     private final SubmissionService submissionService;
-    private final SubmissionMapper submissionMapper;
 
     @GetMapping
     public ResponseEntity<List<SubmissionResponseDto>> getSubmissions() {
-        List<Submission> submissions = submissionService.getAllSubmissions();
-        List<SubmissionResponseDto> response = submissionMapper.toResponseDto(submissions);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(submissionService.getAllSubmissions());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SubmissionResponseDto> getSubmissionById(@PathVariable Long id) {
-        Submission submission = submissionService.getSubmissionById(id);
-        SubmissionResponseDto response = submissionMapper.toResponseDto(submission);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(submissionService.getSubmissionById(id));
     }
 
     @PostMapping
     public ResponseEntity<SubmissionResponseDto> createSubmission(@Valid @RequestBody SubmissionRequestDto submissionDto) {
-        Submission submission = submissionMapper.toEntity(submissionDto);
-        Submission savedSubmission = submissionService.saveSubmission(submission);
-        SubmissionResponseDto response = submissionMapper.toResponseDto(savedSubmission);
+        SubmissionResponseDto response = submissionService.saveSubmission(submissionDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -46,29 +39,21 @@ public class SubmissionController {
 
     @GetMapping("/assignment/{assignmentId}")
     public ResponseEntity<List<SubmissionResponseDto>> getSubmissionsByAssignmentId(@PathVariable Long assignmentId) {
-        List<Submission> submissions = submissionService.getSubmissionsByAssignmentId(assignmentId);
-        List<SubmissionResponseDto> response = submissionMapper.toResponseDto(submissions);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(submissionService.getSubmissionsByAssignmentId(assignmentId));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<SubmissionResponseDto>> getSubmissionsByUserId(@PathVariable Long userId) {
-        List<Submission> submissions = submissionService.getSubmissionsByUserId(userId);
-        List<SubmissionResponseDto> response = submissionMapper.toResponseDto(submissions);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(submissionService.getSubmissionsByUserId(userId));
     }
 
     @PutMapping("/{id}/status")
     public ResponseEntity<SubmissionResponseDto> updateSubmissionStatus(@PathVariable Long id, @RequestBody Submission.Status status) {
-        Submission updatedSubmission = submissionService.updateSubmissionStatus(id, status);
-        SubmissionResponseDto response = submissionMapper.toResponseDto(updatedSubmission);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(submissionService.updateSubmissionStatus(id, status));
     }
 
     @PutMapping("/{id}/grade")
-    public ResponseEntity<SubmissionResponseDto> updateSubmissionGrade(@PathVariable Long id, @RequestBody Short grade) {
-        Submission updatedSubmission = submissionService.updateSubmissionGrade(id, grade);
-        SubmissionResponseDto response = submissionMapper.toResponseDto(updatedSubmission);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<SubmissionResponseDto> updateSubmissionGrade(@PathVariable Long id, @RequestBody Double grade) {
+        return ResponseEntity.ok(submissionService.updateSubmissionGrade(id, grade));
     }
 }

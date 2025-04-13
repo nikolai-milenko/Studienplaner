@@ -1,20 +1,31 @@
 package com.training.studienplaner.course;
-import com.training.studienplaner.assignment.AssignmentMapper;
-import com.training.studienplaner.user.UserMapper;
+
+import com.training.studienplaner.user.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class, AssignmentMapper.class})
+@Mapper(componentModel = "spring")
 public interface CourseMapper {
-    // DTO → Entity
+
+    @Mapping(target = "tutor", source = "tutorId", qualifiedByName = "mapTutor")
     Course toEntity(CourseRequestDto dto);
 
-    // Entity → Response DTO
     CourseResponseDto toResponseDto(Course course);
+
     List<CourseResponseDto> toResponseDto(List<Course> courses);
 
-    // Entity → Short DTO
     CourseShortDto toShortDto(Course course);
 
+    @Named("mapTutor")
+    default User mapTutor(Long tutorId) {
+        if (tutorId == null) {
+            return null;
+        }
+        User tutor = new User();
+        tutor.setUserId(tutorId);
+        return tutor;
+    }
 }

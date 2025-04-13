@@ -13,27 +13,22 @@ import java.util.List;
 public class AssignmentController {
 
     private final AssignmentService assignmentService;
-    private final AssignmentMapper assignmentMapper;
 
     @GetMapping
     public ResponseEntity<List<AssignmentResponseDto>> getAllAssignments() {
-        List<Assignment> assignments = assignmentService.getAllAssignments();
-        List<AssignmentResponseDto> response = assignmentMapper.toResponseDto(assignments);
+        List<AssignmentResponseDto> response = assignmentService.getAllAssignments();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AssignmentResponseDto> getAssignmentById(@PathVariable Long id) {
-        Assignment assignment = assignmentService.getAssignmentById(id);
-        AssignmentResponseDto response = assignmentMapper.toResponseDto(assignment);
+        AssignmentResponseDto response = assignmentService.getAssignmentById(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     public ResponseEntity<AssignmentResponseDto> createAssignment(@RequestBody AssignmentRequestDto dto) {
-        Assignment assignment = assignmentMapper.toEntity(dto);
-        Assignment created = assignmentService.createAssignment(assignment);
-        AssignmentResponseDto response = assignmentMapper.toResponseDto(created);
+        AssignmentResponseDto response = assignmentService.createAssignment(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

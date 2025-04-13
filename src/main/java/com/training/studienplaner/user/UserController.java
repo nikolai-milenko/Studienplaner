@@ -1,7 +1,5 @@
 package com.training.studienplaner.user;
 
-import com.training.studienplaner.course.Course;
-import com.training.studienplaner.course.CourseMapper;
 import com.training.studienplaner.course.CourseResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,30 +13,24 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
+
     private final UserService userService;
-    private final UserMapper userMapper;
-    private final CourseMapper courseMapper;
 
-
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
-        User user = userMapper.toEntity(userRequestDto);
-        User savedUser = userService.createUser(user);
-        UserResponseDto responseDto = userMapper.toResponseDto(savedUser);
+        UserResponseDto responseDto = userService.createUser(userRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        List<User> usersList = userService.getAll();
-        List<UserResponseDto> dtoList = userMapper.toResponseDto(usersList);
+        List<UserResponseDto> dtoList = userService.getAll();
         return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
-        User user = userService.getById(id);
-        UserResponseDto responseDto = userMapper.toResponseDto(user);
+        UserResponseDto responseDto = userService.getById(id);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -50,22 +42,20 @@ public class UserController {
 
     @GetMapping("/students")
     public ResponseEntity<List<UserResponseDto>> getStudents() {
-        List<User> students = userService.findUsersByRole(User.Role.STUDENT);
-        List<UserResponseDto> response = userMapper.toResponseDto(students);
+        List<UserResponseDto> response = userService.findUsersByRole(User.Role.STUDENT);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResponseDto> getUserByEmail(@PathVariable String email) {
-        User user = userService.findByEmail(email);
-        UserResponseDto responseDto = userMapper.toResponseDto(user);
+        UserResponseDto responseDto = userService.findByEmail(email);
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/{id}/courses")
     public ResponseEntity<List<CourseResponseDto>> getUserCourses(@PathVariable Long id) {
-        List<Course> coursesList = userService.getAllCoursesForUser(id);
-        return ResponseEntity.ok(courseMapper.toResponseDto(coursesList));
+        List<CourseResponseDto> courses = userService.getAllCoursesForUser(id);
+        return ResponseEntity.ok(courses);
     }
 
     @PostMapping("/{userId}/courses/{courseId}")
@@ -73,5 +63,4 @@ public class UserController {
         userService.enrollUserToCourse(userId, courseId);
         return ResponseEntity.ok().build();
     }
-
 }

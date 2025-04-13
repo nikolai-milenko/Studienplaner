@@ -1,5 +1,6 @@
 package com.training.studienplaner.assignment;
 
+import com.training.studienplaner.course.CourseRepository;
 import com.training.studienplaner.submission.SubmissionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -10,26 +11,33 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AssignmentService {
+
     private final AssignmentRepository assignmentRepository;
+    private final CourseRepository courseRepository;
+    private final AssignmentMapper assignmentMapper;
     private final SubmissionService submissionService;
 
-    public List<Assignment> getAllAssignments() {
-        return assignmentRepository.findAll();
+    public List<AssignmentResponseDto> getAllAssignments() {
+        List<Assignment> assignments = assignmentRepository.findAll();
+        return assignmentMapper.toResponseDto(assignments);
     }
 
-    public Assignment getAssignmentById(Long id) {
-        return assignmentRepository.findById(id)
+    public AssignmentResponseDto getAssignmentById(Long id) {
+        Assignment assignment = assignmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Assignment not found"));
+        return assignmentMapper.toResponseDto(assignment);
     }
 
     public void deleteAssignmentById(Long id) {
-        Assignment assignment = getAssignmentById(id);
+        Assignment assignment = assignmentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Assignment not found"));
         assignmentRepository.delete(assignment);
     }
 
-    public Assignment createAssignment(Assignment assignment) {
+    public AssignmentResponseDto createAssignment(AssignmentRequestDto dto) {
+        Assignment assignment = assignmentMapper.toEntity(dto, courseRepository);
         Assignment saved = assignmentRepository.save(assignment);
         submissionService.generateSubmissionsForAssignment(saved);
-        return saved;
+        return assignmentMapper.toResponseDto(saved);
     }
 }

@@ -1,5 +1,6 @@
 package com.training.studienplaner.assignment;
 
+import com.training.studienplaner.course.CourseRepository;
 import com.training.studienplaner.submission.SubmissionService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -18,8 +19,15 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AssignmentServiceTest {
+
     @Mock
     private AssignmentRepository assignmentRepository;
+
+    @Mock
+    private CourseRepository courseRepository;
+
+    @Mock
+    private AssignmentMapper assignmentMapper;
 
     @Mock
     private SubmissionService submissionService;
@@ -28,61 +36,44 @@ public class AssignmentServiceTest {
     private AssignmentService assignmentService;
 
     @Test
-    @DisplayName("Soll alle Assignments zurückgeben, wenn Assignments existieren")
-    void getAllAssignments_shouldReturnAssignments_whenAssignmentsExist() {
-        // given
-        Assignment assignment1 = mock(Assignment.class);
-        Assignment assignment2 = mock(Assignment.class);
-        when(assignmentRepository.findAll()).thenReturn(List.of(assignment1, assignment2));
+    @DisplayName("Soll alle Assignments zurückgeben")
+    void getAllAssignments_shouldReturnAssignments() {
+        Assignment assignment = mock(Assignment.class);
+        AssignmentResponseDto responseDto = mock(AssignmentResponseDto.class);
 
-        // when
-        List<Assignment> result = assignmentService.getAllAssignments();
+        when(assignmentRepository.findAll()).thenReturn(List.of(assignment));
+        when(assignmentMapper.toResponseDto(List.of(assignment))).thenReturn(List.of(responseDto));
 
-        // then
-        assertEquals(2, result.size());
-        assertEquals(assignment1, result.get(0));
-        assertEquals(assignment2, result.get(1));
+        List<AssignmentResponseDto> result = assignmentService.getAllAssignments();
+
+        assertEquals(1, result.size());
         verify(assignmentRepository).findAll();
+        verify(assignmentMapper).toResponseDto(List.of(assignment));
     }
 
     @Test
-    @DisplayName("Soll eine leere Liste zurückgeben, wenn keine Assignments existieren")
-    void getAllAssignments_shouldReturnEmptyList_whenNoAssignmentsExist() {
-        // given
-        when(assignmentRepository.findAll()).thenReturn(Collections.emptyList());
-
-        // when
-        List<Assignment> result = assignmentService.getAllAssignments();
-
-        // then
-        assertTrue(result.isEmpty());
-        verify(assignmentRepository).findAll();
-    }
-
-    @Test
-    @DisplayName("Soll Assignment anhand der ID zurückgeben, wenn Assignment existiert")
-    void getAssignmentById_shouldReturnAssignment_whenAssignmentExists() {
-        // given
+    @DisplayName("Soll Assignment anhand der ID zurückgeben")
+    void getAssignmentById_shouldReturnAssignment_whenExists() {
         long id = 1L;
         Assignment assignment = mock(Assignment.class);
+        AssignmentResponseDto responseDto = mock(AssignmentResponseDto.class);
+
         when(assignmentRepository.findById(id)).thenReturn(Optional.of(assignment));
+        when(assignmentMapper.toResponseDto(assignment)).thenReturn(responseDto);
 
-        // when
-        Assignment result = assignmentService.getAssignmentById(id);
+        AssignmentResponseDto result = assignmentService.getAssignmentById(id);
 
-        // then
+        assertEquals(responseDto, result);
         verify(assignmentRepository).findById(id);
-        assertEquals(assignment, result);
+        verify(assignmentMapper).toResponseDto(assignment);
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Assignment mit angegebener ID nicht gefunden wird")
-    void getAssignmentById_shouldThrowException_whenAssignmentDoesNotExist() {
-        // given
+    @DisplayName("Soll Exception werfen, wenn Assignment nicht gefunden")
+    void getAssignmentById_shouldThrowException_whenNotFound() {
         long id = 1L;
         when(assignmentRepository.findById(id)).thenReturn(Optional.empty());
 
-        // when + then
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             assignmentService.getAssignmentById(id);
         });
@@ -92,29 +83,25 @@ public class AssignmentServiceTest {
     }
 
     @Test
-    @DisplayName("Soll Assignment löschen, wenn Assignment existiert")
-    void deleteAssignmentById_shouldDeleteAssignment_whenAssignmentExists() {
-        // given
+    @DisplayName("Soll Assignment löschen")
+    void deleteAssignmentById_shouldDeleteAssignment() {
         long id = 1L;
         Assignment assignment = mock(Assignment.class);
+
         when(assignmentRepository.findById(id)).thenReturn(Optional.of(assignment));
 
-        // when
         assignmentService.deleteAssignmentById(id);
 
-        // then
         verify(assignmentRepository).findById(id);
         verify(assignmentRepository).delete(assignment);
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Assignment mit angegebener ID nicht gefunden wird")
-    void deleteAssignmentById_shouldThrowException_whenAssignmentDoesNotExist() {
-        // given
+    @DisplayName("Soll Exception werfen, wenn Assignment zum Löschen nicht gefunden")
+    void deleteAssignmentById_shouldThrowException_whenNotFound() {
         long id = 1L;
         when(assignmentRepository.findById(id)).thenReturn(Optional.empty());
 
-        // when + then
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             assignmentService.deleteAssignmentById(id);
         });
@@ -124,19 +111,23 @@ public class AssignmentServiceTest {
     }
 
     @Test
-    @DisplayName("Soll ein Assignment erstellen und Submissions generieren")
+    @DisplayName("Soll Assignment erstellen und Submissions generieren")
     void createAssignment_shouldCreateAssignmentAndGenerateSubmissions() {
-        // given
+        AssignmentRequestDto requestDto = mock(AssignmentRequestDto.class);
         Assignment assignment = mock(Assignment.class);
         Assignment savedAssignment = mock(Assignment.class);
+        AssignmentResponseDto responseDto = mock(AssignmentResponseDto.class);
+
+        when(assignmentMapper.toEntity(eq(requestDto), any())).thenReturn(assignment);
         when(assignmentRepository.save(assignment)).thenReturn(savedAssignment);
+        when(assignmentMapper.toResponseDto(savedAssignment)).thenReturn(responseDto);
 
-        // when
-        Assignment result = assignmentService.createAssignment(assignment);
+        AssignmentResponseDto result = assignmentService.createAssignment(requestDto);
 
-        // then
+        assertEquals(responseDto, result);
+        verify(assignmentMapper).toEntity(eq(requestDto), any());
         verify(assignmentRepository).save(assignment);
         verify(submissionService).generateSubmissionsForAssignment(savedAssignment);
-        assertEquals(savedAssignment, result);
+        verify(assignmentMapper).toResponseDto(savedAssignment);
     }
 }

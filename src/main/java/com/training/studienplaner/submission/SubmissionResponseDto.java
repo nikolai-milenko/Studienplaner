@@ -6,6 +6,8 @@ import com.training.studienplaner.user.UserShortDto;
 public record SubmissionResponseDto(
         Long submissionId,
         AssignmentShortDto assignment,
-        UserShortDto student
+        UserShortDto student,
+        Submission.Status status,
+        Double grade
 ) {
 }

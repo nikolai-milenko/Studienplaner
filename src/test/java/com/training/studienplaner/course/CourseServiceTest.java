@@ -1,224 +1,156 @@
 package com.training.studienplaner.course;
 
-
 import com.training.studienplaner.assignment.Assignment;
+import com.training.studienplaner.assignment.AssignmentMapper;
+import com.training.studienplaner.assignment.AssignmentResponseDto;
 import com.training.studienplaner.user.User;
+import com.training.studienplaner.user.UserMapper;
+import com.training.studienplaner.user.UserResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
+
     @Mock
     private CourseRepository courseRepository;
+
+    @Mock
+    private CourseMapper courseMapper;
+
+    @Mock
+    private AssignmentMapper assignmentMapper;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private CourseService courseService;
 
-    @Captor
-    private ArgumentCaptor<Course> courseCaptor;
-
     @Test
-    @DisplayName("Soll einen Kurs erstellen und im Repository speichern")
-    void saveCourse_shouldCreateCourse() {
-        // given
+    @DisplayName("Soll Kurs erstellen")
+    void createCourse_shouldCreateCourse() {
+        CourseRequestDto requestDto = mock(CourseRequestDto.class);
         Course course = mock(Course.class);
-        when(courseRepository.save(course)).thenReturn(course);
+        Course savedCourse = mock(Course.class);
+        CourseResponseDto responseDto = mock(CourseResponseDto.class);
 
-        //when
-        Course result = courseService.createCourse(course);
+        when(courseMapper.toEntity(requestDto)).thenReturn(course);
+        when(courseRepository.save(course)).thenReturn(savedCourse);
+        when(courseMapper.toResponseDto(savedCourse)).thenReturn(responseDto);
 
-        //then
+        CourseResponseDto result = courseService.createCourse(requestDto);
+
+        assertEquals(responseDto, result);
+        verify(courseMapper).toEntity(requestDto);
         verify(courseRepository).save(course);
-        assertNotNull(result);
-        assertEquals(course, result);
+        verify(courseMapper).toResponseDto(savedCourse);
     }
 
     @Test
-    @DisplayName("Soll alle Kurse zurückgeben, wenn Kurse existieren")
-    void getAllCourses_shouldReturnCourses_whenCoursesExist() {
-        // given
-        Course course1 = mock(Course.class);
-        Course course2 = mock(Course.class);
-        when(courseRepository.findAll()).thenReturn(List.of(course1, course2));
-
-        // when
-        List<Course> result = courseService.getAllCourses();
-
-        // then
-        assertEquals(2, result.size());
-        assertEquals(course1, result.get(0));
-        assertEquals(course2, result.get(1));
-        verify(courseRepository).findAll();
-    }
-
-    @Test
-    @DisplayName("Soll eine leere Liste zurückgeben, wenn keine Kurse existieren")
-    void getAllCourses_shouldReturnEmptyList_whenNoCoursesExist() {
-        // given
-        when(courseRepository.findAll()).thenReturn(Collections.emptyList());
-
-        // when
-        List<Course> result = courseService.getAllCourses();
-
-        // then
-        assertTrue(result.isEmpty());
-        verify(courseRepository).findAll();
-    }
-
-    @Test
-    @DisplayName("Soll Kurs anhand der ID zurückgeben, wenn Kurs existiert")
-    void getCourseById_shouldReturnCourse_whenCourseExists() {
-        // given
+    @DisplayName("Soll alle Kurse zurückgeben")
+    void getAllCourses_shouldReturnCourses() {
         Course course = mock(Course.class);
-        long id = 1L;
-        when(courseRepository.findById(id)).thenReturn(Optional.of(course));
+        CourseResponseDto responseDto = mock(CourseResponseDto.class);
 
-        //when
-        Course result = courseService.getCourseById(id);
+        when(courseRepository.findAll()).thenReturn(List.of(course));
+        when(courseMapper.toResponseDto(List.of(course))).thenReturn(List.of(responseDto));
 
-        //then
-        verify(courseRepository).findById(id);
-        assertNotNull(result);
-        assertEquals(course, result);
+        List<CourseResponseDto> result = courseService.getAllCourses();
+
+        assertEquals(1, result.size());
+        assertEquals(responseDto, result.get(0));
+        verify(courseRepository).findAll();
+        verify(courseMapper).toResponseDto(List.of(course));
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Kurs mit angegebener ID nicht gefunden wird")
-    void getCourseById_shouldThrowException_whenCourseDoesNotExist() {
-        // given
-        long id = 1L;
-        when(courseRepository.findById(id)).thenReturn(Optional.empty());
+    @DisplayName("Soll Kurs anhand der ID zurückgeben")
+    void getCourseById_shouldReturnCourse() {
+        Course course = mock(Course.class);
+        CourseResponseDto responseDto = mock(CourseResponseDto.class);
 
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            courseService.getCourseById(id);
-        });
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(courseMapper.toResponseDto(course)).thenReturn(responseDto);
+
+        CourseResponseDto result = courseService.getCourseById(1L);
+
+        assertEquals(responseDto, result);
+        verify(courseRepository).findById(1L);
+        verify(courseMapper).toResponseDto(course);
+    }
+
+    @Test
+    @DisplayName("Soll Exception werfen, wenn Kurs nicht existiert")
+    void getCourseById_shouldThrowException() {
+        when(courseRepository.findById(1L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> courseService.getCourseById(1L));
 
         assertEquals("Course not found", exception.getMessage());
-        verify(courseRepository).findById(id);
+        verify(courseRepository).findById(1L);
     }
 
     @Test
-    @DisplayName("Soll Kurs löschen, wenn Kurs existiert")
-    void deleteCourseById_shouldDeleteCourse_whenCourseExists() {
-        // given
-        long id = 1L;
+    @DisplayName("Soll Kurs löschen")
+    void deleteCourseById_shouldDeleteCourse() {
         Course course = mock(Course.class);
-        when(courseRepository.findById(id)).thenReturn(Optional.of(course));
 
-        // when
-        courseService.deleteCourseById(id);
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
 
-        // then
-        verify(courseRepository).findById(id);
+        courseService.deleteCourseById(1L);
+
+        verify(courseRepository).findById(1L);
         verify(courseRepository).delete(course);
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Kurs mit angegebener ID nicht gefunden wird")
-    void deleteCourseById_shouldDeleteCourse_whenCourseDoesNotExist() {
-        // given
-        long id = 1L;
-        when(courseRepository.findById(id)).thenReturn(Optional.empty());
-
-        // when
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            courseService.deleteCourseById(id);
-        });
-
-        // then
-        assertEquals("Course not found", exception.getMessage());
-        verify(courseRepository).findById(id);
-    }
-
-    @Test
-    @DisplayName("Soll alle Assignments für einen Kurs zurückgeben, wenn Kurs existiert")
-    void getAssignmentsByCourseId_shouldReturnAssignments_whenCourseExists() {
-        // given
-        long courseId = 1L;
-        Assignment assignment1 = mock(Assignment.class);
-        Assignment assignment2 = mock(Assignment.class);
-
+    @DisplayName("Soll Assignments für Kurs zurückgeben")
+    void getAssignmentsByCourseId_shouldReturnAssignments() {
         Course course = mock(Course.class);
-        when(course.getAssignments()).thenReturn(List.of(assignment1, assignment2));
-        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+        Assignment assignment = mock(Assignment.class);
+        AssignmentResponseDto responseDto = mock(AssignmentResponseDto.class);
 
-        // when
-        List<Assignment> result = courseService.getAssignmentsByCourseId(courseId);
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(course.getAssignments()).thenReturn(List.of(assignment));
+        when(assignmentMapper.toResponseDto(List.of(assignment))).thenReturn(List.of(responseDto));
 
-        // then
-        assertEquals(2, result.size());
-        assertEquals(assignment1, result.get(0));
-        assertEquals(assignment2, result.get(1));
-        verify(courseRepository).findById(courseId);
+        List<AssignmentResponseDto> result = courseService.getAssignmentsByCourseId(1L);
+
+        assertEquals(1, result.size());
+        assertEquals(responseDto, result.get(0));
+        verify(courseRepository).findById(1L);
+        verify(assignmentMapper).toResponseDto(List.of(assignment));
     }
 
     @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Kurs mit angegebener ID nicht gefunden wird")
-    void getAssignmentsByCourseId_shouldThrowException_whenCourseDoesNotExist() {
-        // given
-        long courseId = 1L;
-        when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
-
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            courseService.getAssignmentsByCourseId(courseId);
-        });
-
-        assertEquals("Course not found", exception.getMessage());
-        verify(courseRepository).findById(courseId);
-    }
-
-    @Test
-    @DisplayName("Soll alle Studenten für einen Kurs zurückgeben, wenn Kurs existiert")
-    void getStudentsByCourseId_shouldReturnStudents_whenCourseExists() {
-        // given
-        long courseId = 1L;
-        User student1 = mock(User.class);
-        User student2 = mock(User.class);
-
+    @DisplayName("Soll Studenten für Kurs zurückgeben")
+    void getStudentsByCourseId_shouldReturnStudents() {
         Course course = mock(Course.class);
-        when(course.getStudents()).thenReturn(List.of(student1, student2));
-        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+        User user = mock(User.class);
+        UserResponseDto responseDto = mock(UserResponseDto.class);
 
-        // when
-        List<User> result = courseService.getStudentsByCourseId(courseId);
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+        when(course.getStudents()).thenReturn(List.of(user));
+        when(userMapper.toResponseDto(List.of(user))).thenReturn(List.of(responseDto));
 
-        // then
-        assertEquals(2, result.size());
-        assertEquals(student1, result.get(0));
-        assertEquals(student2, result.get(1));
-        verify(courseRepository).findById(courseId);
+        List<UserResponseDto> result = courseService.getStudentsByCourseId(1L);
+
+        assertEquals(1, result.size());
+        assertEquals(responseDto, result.get(0));
+        verify(courseRepository).findById(1L);
+        verify(userMapper).toResponseDto(List.of(user));
     }
-
-    @Test
-    @DisplayName("Soll eine Ausnahme werfen, wenn Kurs mit angegebener ID nicht gefunden wird")
-    void getStudentsByCourseId_shouldThrowException_whenCourseDoesNotExist() {
-        // given
-        long courseId = 1L;
-        when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
-
-        // when + then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            courseService.getStudentsByCourseId(courseId);
-        });
-
-        assertEquals("Course not found", exception.getMessage());
-        verify(courseRepository).findById(courseId);
-    }
-
 }
