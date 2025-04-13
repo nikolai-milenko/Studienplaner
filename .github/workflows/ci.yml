@@ -60,27 +60,13 @@ jobs:
             if (releases.data.length === 0) {
               core.setFailed('No releases found in this repository.');
             } else {
-              const latestTag = releases.data[0].tag_name;
-              console.log("Latest release tag:", latestTag);
-              core.setOutput('tag', latestTag);
+              core.setOutput('tag', releases.data[0].tag_name);
             }
           result-encoding: string
-
-      - name: Debug latest tag
-        run:
-          echo "Latest release tag: ${{ steps.get_latest_release.outputs.tag }}"
-
-      - name: Update latest release with MSI artifact
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.get_latest_release.outputs.tag }}   # Проверьте, что здесь tag, а не result
-          target_commitish: master   # Опционально, если релиз построен от master
-          files: "*.msi"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Update latest release with MSI artifact
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get_latest_release.outputs.tag }}
           files: "*.msi"
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
