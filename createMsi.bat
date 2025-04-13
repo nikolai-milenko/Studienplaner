@@ -11,7 +11,7 @@ rmdir /S /Q runtime > nul 2>&1
 
 echo.
 echo [2/3] Erstelle benutzerdefinierte Runtime...
-c:/Users/Nikolay/.jdks/temurin-21.0.6/bin/jlink ^
+"%JAVA_HOME%\bin\jlink" ^
     --add-modules java.base,java.logging,java.xml,jdk.unsupported,jdk.crypto.ec,java.instrument,java.management,java.naming,java.desktop,java.security.jgss,java.sql ^
     --output runtime ^
     --strip-debug ^
@@ -22,7 +22,7 @@ c:/Users/Nikolay/.jdks/temurin-21.0.6/bin/jlink ^
 echo.
 echo [3/3] Baue MSI-Installer...
 
-c:/Users/Nikolay/.jdks/temurin-21.0.6/bin/jpackage ^
+"%JAVA_HOME%\bin\jpackage" ^
     --type msi ^
     --dest . ^
     --input target ^
