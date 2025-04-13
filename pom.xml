@@ -24,6 +24,20 @@
         <lombok.version>1.18.30</lombok.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
         <!-- Spring Boot -->
         <dependency>
@@ -101,6 +115,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+            <version>0.13.3</version>
         </dependency>
     </dependencies>
 
