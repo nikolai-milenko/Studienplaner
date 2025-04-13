@@ -55,7 +55,7 @@ jobs:
           script: |
             console.log("github:", github);
             console.log("context.repo:", context.repo);
-            const releases = await github.repos.listReleases({
+            const releases = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
