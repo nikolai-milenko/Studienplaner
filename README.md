@@ -1,5 +1,4 @@
-![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)  
-![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
+![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
 
 # 📚 Studienplaner
 
