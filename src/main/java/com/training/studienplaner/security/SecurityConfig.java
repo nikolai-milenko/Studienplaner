@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .accessDeniedHandler(accessDeniedHandler()) // <<< ссылка на бин
+                        .accessDeniedHandler(accessDeniedHandler())
                         .authenticationEntryPoint((req, res, ex2) -> res.sendError(401, "Unauthorized"))
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

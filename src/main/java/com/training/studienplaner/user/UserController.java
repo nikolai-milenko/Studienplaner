@@ -61,7 +61,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/courses")
-    @PreAuthorize("#userDetails != null and (#userId == #userDetails.user.getUserId() or hasAnyRole('TEACHER', 'ADMIN'))")
+    @PreAuthorize("#userDetails != null and (#id == #userDetails.user.getUserId() or hasAnyRole('TEACHER', 'ADMIN'))")
     public ResponseEntity<List<CourseResponseDto>> getUserCourses(@PathVariable Long id,
                                                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
         List<CourseResponseDto> courses = userService.getAllCoursesForUser(id);
