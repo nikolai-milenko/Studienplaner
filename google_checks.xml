@@ -38,14 +38,6 @@
         <property name="optional" value="true"/>
     </module>
 
-    <!-- https://checkstyle.org/filters/suppresswithnearbytextfilter.html -->
-    <module name="SuppressWithNearbyTextFilter">
-        <property name="nearbyTextPattern"
-                  value="CHECKSTYLE.SUPPRESS\: (\w+) for ([+-]\d+) lines"/>
-        <property name="checkPattern" value="$1"/>
-        <property name="lineRange" value="$2"/>
-    </module>
-
     <!-- Checks for whitespace                               -->
     <!-- See http://checkstyle.org/checks/whitespace/index.html -->
     <module name="FileTabCharacter">
