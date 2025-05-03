@@ -1,126 +1,127 @@
-![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)
-![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
+![Build](https://github.com/nikolai-milenko/Studienplaner/actions/workflows/ci.yml/badge.svg?branch=dev)![codecov](https://codecov.io/gh/nikolai-milenko/Studienplaner/branch/dev/graph/badge.svg)
 
 # 📚 Studienplaner
 
-Studienplaner ist eine Anwendung zur Organisation von Kursen, Aufgaben und Einreichungen für Studierende und Lehrende.  
-Das Projekt ist ein Backend-MVP mit vollständigen CRUD-Operationen und validierter REST-API.
+**Ihr smarter Assistent für Kursorganisation, Aufgabenverwaltung und Einreichungen – jetzt mit Sicherheits-Upgrade!**
+
+Studienplaner ist unser leistungsstarkes Backend-MVP mit vollständiger CRUD‑API und JWT‑basiertem Authentifizierungs-Layer. Ideal für Studierende, Lehrende und Admins, die ihre Workflows digital vereinfachen möchten.
+
+---
 
 ## 🚀 Technologien
 
-- Java 21
-- Spring Boot 3
-- Spring Data JPA
-- MapStruct
-- Lombok
-- H2 In-Memory-Datenbank (für Tests)
-- Maven
-- Swagger UI
-- GitHub Actions (CI/CD)
-- JaCoCo (Test Coverage)
-- Codecov (Coverage Reporting)
+- **Java 21** & **Spring Boot 3**
+- **Spring Security** mit **JWT-Authentifizierung**
+- **Spring Data JPA**
+- **MapStruct** & **Lombok**
+- **H2 In-Memory DB** (Tests)
+- **Maven**
+- **Swagger UI**
+- **GitHub Actions** (CI/CD)
+- **JaCoCo** & **Codecov** (Test Coverage)
 
-## 🔧 Funktionen
+---
 
-- Verwaltung von Nutzern (Studierende, Lehrende, Admins)
-- Verwaltung von Kursen und deren Zuordnung zu Lehrenden
-- Erstellung und Verwaltung von Aufgaben für Kurse
-- Automatische Generierung von Submission-Plätzen für alle Studierenden beim Erstellen einer Aufgabe
-- Abgabe von Lösungen durch Studierende
-- Bewertungen und Statusverwaltung der Einreichungen
+## ✨ Features
+
+1. **User Management**
+   - Studierende, Lehrende & Admins mit feingranularen Rollen
+   - Registrieren, Anmelden, Passwort-Reset
+
+2. **Kursverwaltung**
+   - Kurse anlegen, bearbeiten, löschen
+   - Zuordnung von Lehrenden
+
+3. **Aufgaben & Einreichungen**
+   - Aufgaben für Kurse erstellen
+   - Automatische Anlage von Submission‑Plätzen für alle Studierenden
+   - Einreichung von Lösungen & Status‑Tracking
+   - Bewertung durch Lehrende
+
+4. **Sicherheit & Stabilität**
+   - JWT‑Token für schnelle, sichere Sessions
+   - Zentrale Sicherheitskonfiguration
+   - Globales Exception‑Handling für konsistente Fehlermeldungen
+
+---
 
 ## ✅ Projektstatus
 
-- [x] Backend MVP fertiggestellt
-- [x] DTOs & Mapper implementiert
-- [x] Validierung der Anfrage-Daten
-- [x] Unit-Tests für Repository-Schicht (User & Submission)
-- [x] Swagger UI dokumentiert
-- [x] CI/CD eingerichtet (Build, Tests, Coverage)
-- [x] Code Coverage Reporting mit Codecov
-- [x] Integrationstests
-- [ ] Security (Spring Security) noch ausstehend
-- [ ] Eventuelle Erweiterung auf E-Mail-Benachrichtigungen
-- [ ] Frontend-Integration
+- [x] Backend‑MVP
+- [x] Validierte REST‑API (DTOs & Mapper)
+- [x] Unit‑ & Integrationstests
+- [x] CI/CD mit GitHub Actions
+- [x] Test Coverage Reporting (JaCoCo & Codecov)
+- [x] **Security‑Layer mit Spring Security & JWT**
+- [ ] E‑Mail‑Benachrichtigungen (kommend)
+- [ ] Frontend‑Integration (kommend)
 
+---
 
+## 🛠️ Installation & Nutzung
 
-## 🛠️ Installation & Verwendung
+### 1️⃣ Lokale Entwicklung
 
-### Option 1: Lokale Installation (Java muss installiert sein)
+1. **Java 21 installieren**  
+   [Adoptium Temurin 21](https://adoptium.net/de/temurin/releases/?version=21)
 
-1. **Java installieren (falls nicht vorhanden):**
-   - [Java 21 herunterladen (Eclipse Temurin)](https://adoptium.net/de/temurin/releases/?version=21)
-
-2. **Projekt klonen:**
+2. **Repository klonen**
    ```bash
    git clone https://github.com/nikolai-milenko/Studienplaner.git
    cd Studienplaner
    ```
 
-3. **Build ausführen:**
+3. **Build & Tests**
    ```bash
    ./mvnw clean install
    ```
 
-4. **Docker-Container aus lokal gebautem Jar starten:**
+4. **Start with Docker**
    ```bash
    docker build -t studienplaner .
    docker-compose up --build
    ```
 
-### Option 2: Mit Docker und heruntergeladenem Jar (Java wird nicht benötigt)
+### 2️⃣ Nutzung ohne Java
 
-1. **Docker installieren (falls nicht vorhanden):**
-   - [Docker Desktop herunterladen](https://www.docker.com/products/docker-desktop)
+1. **Docker Desktop installieren**  
+   [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-2. **Projekt klonen:**
+2. **Repository klonen**
    ```bash
    git clone https://github.com/nikolai-milenko/Studienplaner.git
    cd Studienplaner
    ```
 
-3. **Jar-Datei herunterladen:**
-   - Lade die neueste jar-Datei aus den GitHub Releases herunter.
-   - Lege die Datei im Root-Verzeichnis des Projekts ab.
+3. **JAR aus Releases herunterladen** und ins Projektverzeichnis legen.
 
-4. **Docker-Container starten:**
+4. **Docker-Container starten**
    ```bash
    docker-compose up --build
    ```
 
 ---
 
-Nach dem Start erreichst du die Anwendung unter: [http://localhost:8080](http://localhost:8080)  
-Die Swagger-UI findest du hier: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+Nach dem Start:
+- **Anwendung:** http://localhost:8080
+- **Swagger UI:** http://localhost:8080/swagger-ui/index.html
 
+---
 
-
-## 🧪 Tests
-
-Tests lokal ausführen:
+## 🧪 Tests & Coverage
 
 ```bash
+# Unit‑ & Integrationstests
 mvn test
-```
 
-Test Coverage Report lokal generieren:
-
-```bash
+# Coverage‑Report lokal
 mvn jacoco:report
+# → target/site/jacoco/index.html
 ```
 
-Report befindet sich danach unter:
-```
-target/site/jacoco/index.html
-```
+---
 
-## 🖥️ CI/CD Pipeline
-
-- Build und Test laufen automatisch bei jedem Push oder Pull Request auf `dev` und `master`.
-- Code Coverage wird mit [Codecov](https://app.codecov.io) erfasst und aktualisiert.
-
-## 📂 Ordnerstruktur
+## 📂 Struktur
 
 ```
 src/
@@ -128,6 +129,7 @@ src/
  │    ├── java/com/training/studienplaner/
  │    │     ├── assignment/
  │    │     ├── course/
+ │    │     ├── security/
  │    │     ├── submission/
  │    │     └── user/
  │    └── resources/
@@ -136,12 +138,13 @@ src/
       └── java/com/training/studienplaner/
 ```
 
+---
+
 ## 📄 Lizenz
 
-Private Entwicklung im Rahmen von Lernzwecken.
+Private Entwicklung im Rahmen von Lern- und Demo-Zwecken.
 
 ---
 
-> Aktueller Stand: Stabiler MVP ✅
->
-> Ziel: Weiterentwicklung zur produktionsreifen Applikation
+> **Aktuell:** Stabiler MVP mit Sicherheits-Upgrade ✅  
+> **Nächste Schritte:** E‑Mail‑Benachrichtigungen & Frontend-Integration  

@@ -33,10 +33,13 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/studienplaner
       SPRING_DATASOURCE_USERNAME: student
       SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_PROFILES_ACTIVE: prod
     networks:
       - studienplaner-net
 
